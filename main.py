@@ -28,7 +28,7 @@ pygame.mixer.init()  # INICIALIZAR SONIDO
 ANCHO = 800 # ancho de la ventana
 ALTURA = 600 # altura de la ventana
 TAMAÑO_BLOQUE = 40 # tamaño de cada bloque de la serpiente y manzana
-VELOCIDAD_JUEGO = 8 # velocidad del juego (mayor es más rápido)
+VELOCIDAD_JUEGO = 5 # velocidad del juego (mayor es más rápido)
 
 # Colores
 NEGRO = (0, 0, 0)
@@ -59,6 +59,7 @@ fondo = pygame.transform.scale(fondo, (ANCHO, ALTURA)) # escalar al tamaño de l
 sonido_gameover = pygame.mixer.Sound("data/sonido/gameover.mp3") # cargar sonido de gameover
 sonido_start = pygame.mixer.Sound("data/sonido/startgame.mp3") # cargar sonido de inicio
 sonido_manzana = pygame.mixer.Sound("data/sonido/recogermanzana.mp3") # cargar sonido al comer manzana
+sonido_explosion = pygame.mixer.Sound("data/sonido/explosion.mp3") # cargar sonido de explosión
 
 pygame.mixer.music.load("data/sonido/musicafondo.mp3") # cargar música de fondo
 pygame.mixer.music.set_volume(0.3) # volumen de la música
@@ -72,6 +73,7 @@ prox_direccion = "RIGHT"
 game_over = False
 puntuacion = 0
 posicion_manzana = [0, 0]
+posicion_bomba = [0, 0]
 
 # ============================
 #   CARGA DE IMÁGENES
@@ -84,6 +86,10 @@ imagen_cabeza = pygame.transform.scale(imagen_cabeza, (TAMAÑO_BLOQUE, TAMAÑO_B
 # Cuerpo
 imagen_cuerpo = pygame.image.load("data/imagen/cuerposnike.png").convert_alpha() # cargar imagen del cuerpo
 imagen_cuerpo = pygame.transform.scale(imagen_cuerpo, (TAMAÑO_BLOQUE, TAMAÑO_BLOQUE)) # escalar al tamaño del bloque
+
+# Bomba
+imagen_bomba = pygame.image.load("data/imagen/bomba.png").convert_alpha() # cargar imagen de la bomba
+imagen_bomba = pygame.transform.scale(imagen_bomba, (TAMAÑO_BLOQUE, TAMAÑO_BLOQUE)) # escalar al tamaño del bloque
 
 # Manzana
 manzana_base = pygame.image.load("data/imagen/manzana.png").convert_alpha() # cargar imagen de la manzana
@@ -109,6 +115,27 @@ def generar_manzana(serpiente_cuerpo): # Genera una posición para la manzana
             break
 
 generar_manzana(cuerpo_serpiente) # generar la primera manzana
+
+def generar_bomba(serpiente_cuerpo, posicion_manzana):
+    global posicion_bomba
+    grid_x = ANCHO // TAMAÑO_BLOQUE
+    grid_y = ALTURA // TAMAÑO_BLOQUE
+
+    while True:
+        x = random.randrange(0, grid_x) * TAMAÑO_BLOQUE
+        y = random.randrange(0, grid_y) * TAMAÑO_BLOQUE
+        if [x, y] not in serpiente_cuerpo and [x, y] != posicion_manzana:
+            posicion_bomba = [x, y]
+            break
+
+generar_bomba(cuerpo_serpiente, posicion_manzana) # generar la primera bomba
+
+# Variables para animación de la bomba
+brillo_bomba = 1.0
+creciendo_bomba = True
+
+
+
 
 def mostrar_game_over(): # Muestra la pantalla de Game Over
     pantalla.blit(fuente_game_over.render("GAME OVER", True, ROJO), # texto de Game Over
@@ -214,20 +241,28 @@ while True:
         else:
             cuerpo_serpiente.pop() # Si no se comió manzana, elimina la última parte del cuerpo para mantener la longitud.
 
-        # Colisiones
+        # --- Colisiones ---
+        
+        # colisión con paredes
         if (posicion_serpiente[0] < 0 or posicion_serpiente[0] >= ANCHO or
-                posicion_serpiente[1] < 0 or posicion_serpiente[1] >= ALTURA): # colisión con paredes
+                posicion_serpiente[1] < 0 or posicion_serpiente[1] >= ALTURA): 
             game_over = True
             pygame.mixer.music.stop()   # DETENER MÚSICA
             sonido_gameover.play()  # reproducir sonido de gameover
 
-
-        for parte in cuerpo_serpiente[1:]: # colisión con el cuerpo
+        # colisión con el cuerpo
+        for parte in cuerpo_serpiente[1:]: 
             if posicion_serpiente == parte: # colisión detectada
                 game_over = True # marcar como game over
                 pygame.mixer.music.stop()   # DETENER MÚSICA
                 sonido_gameover.play() # reproducir sonido de gameover
                 break # salir del bucle
+        
+        # Colisión con bomba
+        if posicion_serpiente == posicion_bomba:
+            game_over = True
+            pygame.mixer.music.stop()   # DETENER MÚSICA
+            sonido_explosion.play() # reproducir sonido de explosión
 
 
         # Dibujar fondo
@@ -248,6 +283,20 @@ while True:
         ajuste_posicion = (tamaño_anim - TAMAÑO_BLOQUE) // 2 # centrar la manzana animada
         pantalla.blit(manzana_animada, (posicion_manzana[0] - ajuste_posicion, posicion_manzana[1] - ajuste_posicion)) # dibujar manzana
 
+        # Bomba animada
+        if creciendo_bomba:
+            brillo_bomba += 0.01
+            if brillo_bomba >= 1.15:
+                creciendo_bomba = False
+        else:
+            brillo_bomba -= 0.01
+            if brillo_bomba <= 1.00:
+                creciendo_bomba = True
+        tamaño_bomba_anim = int(TAMAÑO_BLOQUE * brillo_bomba) # tamaño animado
+        bomba_animada = pygame.transform.scale(imagen_bomba, (tamaño_bomba_anim, tamaño_bomba_anim))
+        ajuste_bomba_posicion = (tamaño_bomba_anim - TAMAÑO_BLOQUE) // 2 # centrar la bomba animada
+        pantalla.blit(bomba_animada, (posicion_bomba[0] - ajuste_bomba_posicion, posicion_bomba[1] - ajuste_bomba_posicion)) # dibujar
+        
         # Dibujar serpiente
         for i, (x, y) in enumerate(cuerpo_serpiente): # dibujar cada parte del cuerpo
             if i == 0:
