@@ -1,5 +1,6 @@
 # Snike – Juego de Serpiente en Pygame
-### Proyecto final – UNPilar • Comisión 1  
+### Proyecto final - UNPilar - Comisión 1  
+
 **Creado por:** *Elías Nuñez & Yuriangel Pérez*
 
 ---
@@ -12,7 +13,7 @@ Incluye sprites personalizados, música, animaciones, pantalla de guía y detecc
 El objetivo es simple:  
 - Mover la serpiente  
 - Comer manzanas  
-- Evitar chocar contra paredes o su propio cuerpo  
+- Evitar chocar contra paredes, bombas o su propio cuerpo  
 - ¡Lograr la mayor puntuación posible!
 
 ---
@@ -21,11 +22,10 @@ El objetivo es simple:
 
 - Fondo personalizado  
 - Sprites de cabeza y cuerpo de la serpiente  
-- Manzana animada con efecto de “brillo”  
+- Manzana y bomba animadas con efecto de “brillo”  
 - Música de fondo (MP3)  
 - Sonidos al iniciar, al recoger manzana y al perder  
 - Pantalla de guía antes del juego  
 - Colisiones completas  
 - Movimiento suave basado en bloques
-
 
