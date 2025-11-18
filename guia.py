@@ -9,11 +9,12 @@ ALTURA = 600
 BLANCO = (255, 255, 255)
 NEGRO = (0, 0, 0)
 VERDE = (0, 255, 0)
+FUKSIA =  (255, 84, 175)
 
 pantalla = pygame.display.set_mode((ANCHO, ALTURA))
-pygame.display.set_caption("Guía del Juego - Serpiente")
+pygame.display.set_caption("Guía del Juego - Pinky la Serpiente")
 
-fondo = pygame.image.load("data/imagen/fondo.png").convert()
+fondo = pygame.image.load("data/imagen/fondo_start.png").convert()
 fondo = pygame.transform.scale(fondo, (ANCHO, ALTURA))
 
 fuente_titulo = pygame.font.SysFont("Arial", 60)
@@ -37,6 +38,11 @@ def mostrar_guia():
 
         pantalla.blit(fondo, (0, 0))
 
+        # Nombre del juego
+        nombre_juego = fuente_titulo.render("Pinky la Serpiente", True, FUKSIA)
+        rect_nombre = nombre_juego.get_rect(center=(ANCHO // 2, 60))
+        pantalla.blit(nombre_juego, rect_nombre)
+        
         # Título
         titulo = fuente_titulo.render("¿Cómo jugar?", True, NEGRO)
         rect_titulo = titulo.get_rect(center=(ANCHO // 2, 120))

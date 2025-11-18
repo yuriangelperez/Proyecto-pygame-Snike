@@ -12,9 +12,9 @@
 #3 eventos ( que se mueva o salte )
 # colision
 
-# ============================
-#   JUEGO DE SERPIENTE
-# ============================
+# =================================
+#   JUEGO DE PINKY LA  SERPIENTE
+# =================================
 
 import pygame
 import sys
@@ -28,7 +28,7 @@ pygame.mixer.init()  # INICIALIZAR SONIDO
 ANCHO = 800 # ancho de la ventana
 ALTURA = 600 # altura de la ventana
 TAMAÑO_BLOQUE = 40 # tamaño de cada bloque de la serpiente y manzana
-VELOCIDAD_JUEGO = 5 # velocidad del juego (mayor es más rápido)
+VELOCIDAD_JUEGO = 6 # velocidad del juego (mayor es más rápido)
 
 # Colores
 NEGRO = (0, 0, 0)
@@ -38,7 +38,7 @@ ROSA = (255, 192, 203)
 
 # Pantalla
 pantalla = pygame.display.set_mode((ANCHO, ALTURA)) # crear ventana
-pygame.display.set_caption("Juego Clásico - Serpiente") # título de la ventana
+pygame.display.set_caption("Pinky la Serpiente") # título de la ventana
 
 clock = pygame.time.Clock() # reloj para controlar FPS
 fuente_game_over = pygame.font.SysFont('Arial', 70) # fuente para "Game Over"
