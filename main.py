@@ -73,8 +73,8 @@ prox_direccion = "RIGHT"
 game_over = False
 puntuacion = 0
 posicion_manzana = [0, 0]
-posicion_bomba = [0, 0]
-
+bombas = []
+ultima_bomba = 0 # contador para controlar generación de bombas
 # ============================
 #   CARGA DE IMÁGENES
 # ============================
@@ -102,7 +102,7 @@ creciendo = True
 #   FUNCIONES
 # ============================
 
-def generar_manzana(serpiente_cuerpo): # Genera una posición para la manzana
+def generar_manzana(serpiente_cuerpo, bombas): # Genera una posición para la manzana
     global posicion_manzana
     grid_x = ANCHO // TAMAÑO_BLOQUE
     grid_y = ALTURA // TAMAÑO_BLOQUE
@@ -110,14 +110,14 @@ def generar_manzana(serpiente_cuerpo): # Genera una posición para la manzana
     while True:
         x = random.randrange(0, grid_x) * TAMAÑO_BLOQUE # posición x aleatoria en la cuadrícula
         y = random.randrange(0, grid_y) * TAMAÑO_BLOQUE # posición y aleatoria en la cuadrícula
-        if [x, y] not in serpiente_cuerpo: # evitar que la manzana aparezca sobre la serpiente
+        if [x, y] not in serpiente_cuerpo and [x, y] not in bombas: # evitar que la manzana aparezca sobre la serpiente y bombas
             posicion_manzana = [x, y] # asignar posición de la manzana
             break
 
-generar_manzana(cuerpo_serpiente) # generar la primera manzana
+generar_manzana(cuerpo_serpiente, bombas) # generar la primera manzana
 
 def generar_bomba(serpiente_cuerpo, posicion_manzana):
-    global posicion_bomba
+    global bombas
     grid_x = ANCHO // TAMAÑO_BLOQUE
     grid_y = ALTURA // TAMAÑO_BLOQUE
 
@@ -125,10 +125,11 @@ def generar_bomba(serpiente_cuerpo, posicion_manzana):
         x = random.randrange(0, grid_x) * TAMAÑO_BLOQUE
         y = random.randrange(0, grid_y) * TAMAÑO_BLOQUE
         if [x, y] not in serpiente_cuerpo and [x, y] != posicion_manzana:
-            posicion_bomba = [x, y]
+            bombas.append([x, y])
             break
 
-generar_bomba(cuerpo_serpiente, posicion_manzana) # generar la primera bomba
+if puntuacion % 50 == 0:
+    generar_bomba(cuerpo_serpiente, posicion_manzana) # generar la bomba
 
 # Variables para animación de la bomba
 brillo_bomba = 1.0
@@ -150,14 +151,16 @@ def mostrar_game_over(): # Muestra la pantalla de Game Over
     pygame.display.update() # actualizar pantalla
 
 def reiniciar_juego(): # Reinicia el estado del juego
-    global posicion_serpiente, cuerpo_serpiente, direccion, prox_direccion, game_over, puntuacion # reiniciar variables globales
+    global posicion_serpiente, cuerpo_serpiente, direccion, prox_direccion, game_over, puntuacion, bombas, ultima_bomba # reiniciar variables globales
     posicion_serpiente = [100, 50] # posición inicial de la serpiente
     cuerpo_serpiente = [[100, 50], [60, 50], [20, 50]]
     direccion = "RIGHT"
     prox_direccion = "RIGHT"
     puntuacion = 0
     game_over = False
-    generar_manzana(cuerpo_serpiente) # generar nueva manzana
+    bombas = []
+    ultima_bomba = 0
+    generar_manzana(cuerpo_serpiente, bombas) # generar nueva manzana
     generar_bomba(cuerpo_serpiente, posicion_manzana) # generar nueva bomba
     
     # Volver a activar música al reiniciar
@@ -236,12 +239,17 @@ while True:
         # Comer manzana
         if posicion_serpiente == posicion_manzana: # si la serpiente colisiona con la manzana
             puntuacion += 10 # aumentar puntuación
-            generar_manzana(cuerpo_serpiente) # generar nueva manzana
+            generar_manzana(cuerpo_serpiente, bombas) # generar nueva manzana
             sonido_manzana.play()   # sonido al comer
 
         else:
             cuerpo_serpiente.pop() # Si no se comió manzana, elimina la última parte del cuerpo para mantener la longitud.
 
+        if puntuacion // 50 > ultima_bomba:
+            generar_bomba(cuerpo_serpiente, posicion_manzana)
+            ultima_bomba += 1
+
+        
         # --- Colisiones ---
         
         # colisión con paredes
@@ -260,10 +268,11 @@ while True:
                 break # salir del bucle
         
         # Colisión con bomba
-        if posicion_serpiente == posicion_bomba: # 
-            game_over = True
-            pygame.mixer.music.stop()   # DETENER MÚSICA
-            sonido_explosion.play() # reproducir sonido de explosión
+        for b in bombas:
+            if posicion_serpiente == b: # si la serpiente colisiona con una bomba
+                game_over = True
+                pygame.mixer.music.stop()   # DETENER MÚSICA
+                sonido_explosion.play() # reproducir sonido de explosión
 
 
         # Dibujar fondo
@@ -284,20 +293,23 @@ while True:
         ajuste_posicion = (tamaño_anim - TAMAÑO_BLOQUE) // 2 # centrar la manzana animada
         pantalla.blit(manzana_animada, (posicion_manzana[0] - ajuste_posicion, posicion_manzana[1] - ajuste_posicion)) # dibujar manzana
 
-        # Bomba animada
-        if creciendo_bomba: # aumentar tamaño
-            brillo_bomba += 0.01
-            if brillo_bomba >= 1.15:
-                creciendo_bomba = False # cambiar dirección
-        else:
-            brillo_bomba -= 0.01
-            if brillo_bomba <= 1.00:
-                creciendo_bomba = True # cambiar dirección
-                
-        tamaño_bomba_anim = int(TAMAÑO_BLOQUE * brillo_bomba) # tamaño animado
-        bomba_animada = pygame.transform.scale(imagen_bomba, (tamaño_bomba_anim, tamaño_bomba_anim))
-        ajuste_bomba_posicion = (tamaño_bomba_anim - TAMAÑO_BLOQUE) // 2 # centrar la bomba animada
-        pantalla.blit(bomba_animada, (posicion_bomba[0] - ajuste_bomba_posicion, posicion_bomba[1] - ajuste_bomba_posicion)) # dibujar
+        # Dibujar todas las bombas
+        for b in bombas:
+            if creciendo_bomba:
+                brillo_bomba += 0.01
+                if brillo_bomba >= 1.2:
+                    creciendo_bomba = False
+            else:
+                brillo_bomba -= 0.01
+                if brillo_bomba <= 1.0:
+                    creciendo_bomba = True
+
+            tamaño_bomba_anim = int(TAMAÑO_BLOQUE * brillo_bomba)
+            bomba_animada = pygame.transform.scale(imagen_bomba, (tamaño_bomba_anim, tamaño_bomba_anim))
+            ajuste_bomba = (tamaño_bomba_anim - TAMAÑO_BLOQUE) // 2
+            pantalla.blit(bomba_animada, (b[0] - ajuste_bomba, b[1] - ajuste_bomba))
+
+
         
         # Dibujar serpiente
         for i, (x, y) in enumerate(cuerpo_serpiente): # dibujar cada parte del cuerpo
