@@ -158,6 +158,7 @@ def reiniciar_juego(): # Reinicia el estado del juego
     puntuacion = 0
     game_over = False
     generar_manzana(cuerpo_serpiente) # generar nueva manzana
+    generar_bomba(cuerpo_serpiente, posicion_manzana) # generar nueva bomba
     
     # Volver a activar música al reiniciar
     pygame.mixer.music.load("data/sonido/musicafondo.mp3")
@@ -244,8 +245,8 @@ while True:
         # --- Colisiones ---
         
         # colisión con paredes
-        if (posicion_serpiente[0] < 0 or posicion_serpiente[0] >= ANCHO or
-                posicion_serpiente[1] < 0 or posicion_serpiente[1] >= ALTURA): 
+        if (posicion_serpiente[0] < 0 or posicion_serpiente[0] >= ANCHO or 
+                posicion_serpiente[1] < 0 or posicion_serpiente[1] >= ALTURA): # fuera de los límites
             game_over = True
             pygame.mixer.music.stop()   # DETENER MÚSICA
             sonido_gameover.play()  # reproducir sonido de gameover
@@ -259,7 +260,7 @@ while True:
                 break # salir del bucle
         
         # Colisión con bomba
-        if posicion_serpiente == posicion_bomba:
+        if posicion_serpiente == posicion_bomba: # 
             game_over = True
             pygame.mixer.music.stop()   # DETENER MÚSICA
             sonido_explosion.play() # reproducir sonido de explosión
@@ -269,14 +270,14 @@ while True:
         pantalla.blit(fondo, (0, 0))
 
         # Manzana animada
-        if creciendo:
-            brillo_escala += 0.01
+        if creciendo: # aumentar tamaño
+            brillo_escala += 0.01  
             if brillo_escala >= 1.15:
-                creciendo = False
+                creciendo = False # cambiar dirección
         else:
-            brillo_escala -= 0.01
+            brillo_escala -= 0.01 
             if brillo_escala <= 1.00:
-                creciendo = True
+                creciendo = True # cambiar dirección
 
         tamaño_anim = int(TAMAÑO_BLOQUE * brillo_escala) # tamaño animado
         manzana_animada = pygame.transform.scale(manzana_base, (tamaño_anim, tamaño_anim))
@@ -284,14 +285,15 @@ while True:
         pantalla.blit(manzana_animada, (posicion_manzana[0] - ajuste_posicion, posicion_manzana[1] - ajuste_posicion)) # dibujar manzana
 
         # Bomba animada
-        if creciendo_bomba:
+        if creciendo_bomba: # aumentar tamaño
             brillo_bomba += 0.01
             if brillo_bomba >= 1.15:
-                creciendo_bomba = False
+                creciendo_bomba = False # cambiar dirección
         else:
             brillo_bomba -= 0.01
             if brillo_bomba <= 1.00:
-                creciendo_bomba = True
+                creciendo_bomba = True # cambiar dirección
+                
         tamaño_bomba_anim = int(TAMAÑO_BLOQUE * brillo_bomba) # tamaño animado
         bomba_animada = pygame.transform.scale(imagen_bomba, (tamaño_bomba_anim, tamaño_bomba_anim))
         ajuste_bomba_posicion = (tamaño_bomba_anim - TAMAÑO_BLOQUE) // 2 # centrar la bomba animada
