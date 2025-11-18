@@ -59,7 +59,7 @@ def mostrar_guia():
 
         y = 220
         for linea in instrucciones:
-            texto = fuente_texto.render(linea, True, BLANCO)
+            texto = fuente_texto.render(linea, True, NEGRO)
             rect_texto = texto.get_rect(center=(ANCHO // 2, y))
             pantalla.blit(texto, rect_texto)
             y += 40
