@@ -30,9 +30,9 @@ def mostrar_guia():
                 sys.exit()
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:   # Enter → iniciar juego
+                if event.key == pygame.K_RETURN:   # Enter: iniciar juego
                     return
-                if event.key == pygame.K_q:        # Q → salir
+                if event.key == pygame.K_q:        # Q: salir
                     pygame.quit()
                     sys.exit()
 
@@ -57,7 +57,7 @@ def mostrar_guia():
             "  →  Derecha",
             "",
             "Objetivo: Come las manzanas para sumar puntos.",
-            "Pierdes si tocas una pared o tu propio cuerpo.",
+            "Pierdes si tocas una pared, bomba o tu propio cuerpo.",
             "",
             "Presiona ENTER para comenzar.",
             "Presiona Q para salir."
