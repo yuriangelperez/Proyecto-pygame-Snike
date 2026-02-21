@@ -13,7 +13,7 @@
 # colision
 
 # =================================
-#   JUEGO DE PINKY LA  SERPIENTE
+#   JUEGO DE PINKY LA  SERPIENTE :3
 # =================================
 
 import pygame
